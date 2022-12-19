@@ -30,8 +30,8 @@ class BooleanSeriesTestCases(unittest.TestCase):
     bs3 = BooleanSeries([True, None, False])
     bs4 = BooleanSeries([False, None, True])
 
-    self.assertTrue(bs1.has_same_data(~bs2))
-    self.assertTrue(bs3.has_same_data(~bs4), msg='bs3:{} bs4:{} ~bs4:{}'.format(bs3, bs4, ~bs4))
+    self.assertTrue(bs1 == (~bs2))
+    self.assertTrue(bs3 == (~bs4))
 
   def test_BooleanSeries_and(self):
     bs1 = BooleanSeries([True, True, False, None, None])

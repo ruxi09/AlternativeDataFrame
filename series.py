@@ -1,17 +1,26 @@
 from generic_series import Series
 
 def expand_if_needed(series, other, type_needed):
+  """
+  If other is only one element, e, instead of a Series,
+  it is converted into a serie of the same length as
+  series, containg only element e.
+  """
   if not issubclass(type(other), Series):
     dtype = type(other)
     data = [other] * len(series.data)
     if dtype == type_needed:
-        return Series(data, type_needed, series.name)
+      return Series(data, type_needed, series.name)
     else:
-        raise TypeError('{} type not supported for operation.'.format(dtype))
+      raise TypeError('{} type not supported for operation.'.format(dtype))
   return other
 
 
 def get_type(series, other):
+  """
+  Returns the type contained by series.
+  It checks both if maybe one of the series only contains None
+  """
   t = get_type_from_list(series.data)
   if t != None:
     return t
@@ -20,12 +29,18 @@ def get_type(series, other):
     return t
 
 def get_type_from_list(l):
+  """
+  Returns the type of elements in a list.
+  Here we assume a list can contain only elements of the same type.
+  """
   for elem in l:
     if elem != None:
       return type(elem)
 
 class BooleanSeries(Series):
-
+  """
+  Class for Boolean Series
+  """
   def __init__(self, data, name=None):
     if len(data) > 0:
       for val in data:
@@ -35,6 +50,9 @@ class BooleanSeries(Series):
     Series.__init__(self, data, bool, name)
 
   def __invert__(self):
+    """
+    Invert a series
+    """
     data = []
     for elem in self.data:
       if elem is None:
@@ -43,6 +61,9 @@ class BooleanSeries(Series):
         data.append(not elem)
     return BooleanSeries(data, self.name)
 
+  """
+  Now overwrite the and, or, xor operators
+  """
   def __and__(self, other):
     other = expand_if_needed(self, other, bool)
     return BooleanSeries([x and y for x, y in zip(self.data, other.data)])
@@ -57,6 +78,9 @@ class BooleanSeries(Series):
 
 
 class StringSeries(Series):
+  """
+  Class for String Series
+  """
   def __init__(self, data, name=None):
     for val in data:
       if not (isinstance(val, str) or val is None):
@@ -65,9 +89,15 @@ class StringSeries(Series):
 
 
 class NumericalSeries(Series):
+  """
+  Class for Numeric Series
+  """
   def __init__(self, data, data_type, name):
       Series.__init__(self, data, data_type, name)
 
+  """
+  Now overwrite the +, -, *, /, <, >, <=, >=
+  """
   def __add__(self, other):
     other = expand_if_needed(self, other, type(self.data[0]))
     t = get_type(self, other)
@@ -110,6 +140,9 @@ class NumericalSeries(Series):
 
 
 class IntegerSeries(NumericalSeries):
+  """
+  Class for Integer Series, Subclass of Numeric Series
+  """
   def __init__(self, data, name=None):
       for val in data:
           if not (isinstance(val, int) or val is None):
@@ -119,9 +152,11 @@ class IntegerSeries(NumericalSeries):
 
 
 class FloatSeries(NumericalSeries):
+  """
+  Class for Float Series, Subclass of Numeric Series
+  """
   def __init__(self, data, name=None):
     for val in data:
-        if not (isinstance(val, float) or val is None):
-            raise TypeError('{} is not float or None'.format(val))
-
+      if not (isinstance(val, float) or val is None):
+        raise TypeError('{} is not float or None'.format(val))
     NumericalSeries.__init__(self, data, float, name)
